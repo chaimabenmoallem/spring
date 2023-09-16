@@ -2,20 +2,28 @@ package com.epix.hawkadmin.services;
 
 import com.epix.hawkadmin.repository.CarsRepo;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.apache.http.util.EntityUtils;
+
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.epix.hawkadmin.model.Cars;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import com.google.gson.JsonObject;
+import org.apache.http.entity.StringEntity;
+import com.google.gson.JsonParser;
 
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
+
 
 @Service
 public class CarsService {
@@ -122,6 +130,66 @@ public class CarsService {
         }
         return term;  // Return the original term if no synonym was found
     }
+
+    public List<String> autocompleteCombined(String prefix) {
+        String endpoint = "/cars/_search";
+
+        // Build the search JSON payload targeting combined_autocomplete
+        String jsonString = "{"
+                + "\"suggest\": {"
+                + "\"combined-suggest\": {"
+                + "\"prefix\": \"" + prefix + "\","
+                + "\"completion\": {"
+                + "\"field\": \"combined_autocomplete\","
+                + "\"size\": 10"
+                + "}"
+                + "}"
+                + "}"
+                + "}";
+
+        List<String> suggestions = new ArrayList<>();
+
+        try {
+            HttpEntity entity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
+            Request request = new Request("POST", endpoint);
+            request.setEntity(entity);
+            Response response = restClient.performRequest(request);
+
+            // Parse the response
+            String responseBody = EntityUtils.toString(response.getEntity());
+            JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
+
+            JsonArray options = jsonObject.getAsJsonObject("suggest")
+                    .getAsJsonArray("combined-suggest")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonArray("options");
+
+            Set<String> uniqueSuggestions = new HashSet<>();
+            for (JsonElement option : options) {
+                uniqueSuggestions.add(option.getAsJsonObject().get("text").getAsString());
+            }
+            suggestions.addAll(uniqueSuggestions);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return suggestions;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    /* public String convertToOriginalEnergy(String term) throws IOException {
         Map<String, String> params = Collections.emptyMap();
