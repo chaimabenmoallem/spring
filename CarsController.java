@@ -184,6 +184,10 @@ public class CarsController {
         return carDetails;
     }
 
-
+    @GetMapping("/autocomplete/combined")
+    public ResponseEntity<List<String>> autocompleteCombined(@RequestParam("prefix") String prefix) {
+        List<String> combinedSuggestions = carsService.autocompleteCombined(prefix);
+        return ResponseEntity.ok(combinedSuggestions);
+    }
 
 }
