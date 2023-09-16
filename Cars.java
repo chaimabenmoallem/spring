@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 
+import javax.annotation.processing.Completion;
+
 @Document(indexName = "cars")
 public class Cars {
 
@@ -18,6 +20,13 @@ public class Cars {
     private String bodyType;
     private String imageUrl;
 
+    //for autoComplete
+    private Completion suggestMake;
+    private Completion suggestModel;
+
+    private Completion suggestEnergy;
+
+
 
     public Cars() {
     }
@@ -30,6 +39,31 @@ public class Cars {
         this.transmissionType = transmissionType;
         this.bodyType = bodyType;
         this.imageUrl=imageUrl;
+    }
+
+
+    public Completion getSuggestMake() {
+        return suggestMake;
+    }
+
+    public void setSuggestMake(Completion suggestMake) {
+        this.suggestMake = suggestMake;
+    }
+
+    public Completion getSuggestModel() {
+        return suggestModel;
+    }
+
+    public void setSuggestModel(Completion suggestModel) {
+        this.suggestModel = suggestModel;
+    }
+
+    public Completion getSuggestEnergy() {
+        return suggestEnergy;
+    }
+
+    public void setSuggestEnergy(Completion suggestEnergy) {
+        this.suggestEnergy = suggestEnergy;
     }
 
     public String getTransmissionType() {
