@@ -1,5 +1,3 @@
-
-
 package com.epix.hawkadmin.repository;
 
 import com.epix.hawkadmin.model.Cars;
